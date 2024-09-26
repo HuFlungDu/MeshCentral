@@ -87,7 +87,7 @@ function DownloadAgentBinary(path, ID)
     var downloadUri = 'https://' + options.host + ':' + options.port + '/meshagents?id=' + (ID != null ? ID : getARCHID());
     sendServerLog('Diagnostic: Attempting to downlod agent from: ' + downloadUri);
 
-    return (wget(downloadUri, path, { rejectUnauthorized: false }));
+    return (wget(downloadUri, path, { rejectUnauthorized: global._MSH.validateTLS === "true" }));
 }
 
 function giveup()

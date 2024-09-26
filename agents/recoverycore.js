@@ -600,7 +600,7 @@ function agentUpdate_Start(updateurl, updateoptions) {
             var options = require('http').parseUri(updateurl != null ? updateurl : require('MeshAgent').ServerUrl);
             options.protocol = 'https:';
             if (updateurl == null) { options.path = ('/meshagents?id=' + require('MeshAgent').ARCHID); sendConsoleText('Downloading update from: ' + options.path, sessionid); }
-            options.rejectUnauthorized = false;
+            options.rejectUnauthorized = global._MSH.validateTLS === "true";
             options.checkServerIdentity = function checkServerIdentity(certs) {
                 // If the tunnel certificate matches the control channel certificate, accept the connection
                 try { if (require('MeshAgent').ServerInfo.ControlChannelCertificate.digest == certs[0].digest) return; } catch (ex) { }
@@ -949,7 +949,7 @@ require('MeshAgent').AddCommandHandler(function (data)
                                     {
                                         xurl = xurl.split('$').join('%24').split('@').join('%40'); // Escape the $ and @ characters
                                         var woptions = http.parseUri(xurl);
-                                        woptions.rejectUnauthorized = 0;
+                                        woptions.rejectUnauthorized = global._MSH.validateTLS === "true";
                                         woptions.perMessageDeflate = false;
                                         woptions.checkServerIdentity = function checkServerIdentity(certs) {
                                             // If the tunnel certificate matches the control channel certificate, accept the connection
