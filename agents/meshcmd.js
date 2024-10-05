@@ -169,6 +169,7 @@ function run(argv) {
     if (args.lmsdebug) { settings.lmsdebug = true; }
     if (args.json) { settings.json = true; }
     if (args.tls) { settings.tls = true; }
+    if (args.validatewebcert) { settings.validatewebcert = true; }
     if ((argv.length > 1) && (actions.indexOf(argv[1].toUpperCase()) >= 0)) { settings.action = argv[1]; }
     if (globalDebugFlags != 0) { console.setInfoLevel(1); }
 
@@ -667,7 +668,7 @@ function run(argv) {
                 var http = require('http');
                 var options = http.parseUri(args.post);
                 options.method = 'POST';
-                options.rejectUnauthorized = false;
+                options.rejectUnauthorized = settings.validatewebcert == true;
                 options.checkServerIdentity = function (cert) { }
                 //console.log("options: " + JSON.stringify(options, null, 2));
                 var req = http.request(options);
@@ -1294,7 +1295,7 @@ function startMeshCommander() {
                 } else {
                     // If TLS is going to be used, setup a TLS socket
                     var tls = require('tls');
-                    var tlsoptions = { host: webargs.host, port: webargs.port, rejectUnauthorized: false };
+                    var tlsoptions = { host: webargs.host, port: webargs.port, rejectUnauthorized: settings.validatewebcert == true };
                     if (webargs.tls1only == 1) { tlsoptions.secureProtocol = 'TLSv1_method'; }
                     ws.forwardclient = tls.connect(tlsoptions, function () { debug(1, 'Connected TLS to ' + webargs.host + ':' + webargs.port + '.'); this.pipe(this.ws, { end: false }); this.ws.pipe(this, { end: false }); });
                     ws.forwardclient.on('error', function () { debug(1, 'TLS connection error to ' + webargs.host + ':' + webargs.port + '.'); try { this.ws.end(); } catch (e) { } });
@@ -2200,7 +2201,7 @@ function startRouter() {
     debug(1, "Connecting to " + options.host + ".");
     debug(1, "Connection options: " + JSON.stringify(options) + ".");
     options.checkServerIdentity = onVerifyServer;
-    options.rejectUnauthorized = false;
+    options.rejectUnauthorized = settings.validatewebcert == true;
     settings.websocket = http.request(options);
     settings.websocket.upgrade = OnServerWebSocket;
     settings.websocket.on('error', function (ex) { console.log("Unable to connect to server: " + JSON.stringify(ex)); exit(1); return; });
@@ -2338,7 +2339,7 @@ function OnTcpClientConnected(c) {
             options = http.parseUri(settings.serverurl + '?auth=' + settings.acookie + '&nodeid=' + settings.remotenodeid + '&tcpport=' + settings.remoteport + (settings.remotetarget == null ? '' : '&tcpaddr=' + settings.remotetarget));
         } catch (e) { console.log("Unable to parse \"serverUrl\"."); exit(1); return; }
         options.checkServerIdentity = onVerifyServer;
-        options.rejectUnauthorized = false;
+        options.rejectUnauthorized = settings.validatewebcert == true;
         c.websocket = http.request(options);
         c.websocket.tcp = c;
         c.websocket.tunneling = false;
