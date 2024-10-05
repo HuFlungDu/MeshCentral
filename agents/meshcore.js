@@ -1107,6 +1107,7 @@ function handleServerCommand(data) {
                 agentUpdate_Start(data.url, { hash: data.hash, tlshash: data.servertlshash, sessionid: data.sessionid });
                 break;
             case 'msg': {
+                console.log("got a message")
                 switch (data.type) {
                     case 'console': { // Process a console command
                         if ((typeof data.rights != 'number') || ((data.rights & 8) == 0) || ((data.rights & 16) == 0)) break; // Check console rights (Remote Control and Console)
@@ -1129,7 +1130,7 @@ function handleServerCommand(data) {
                                 if (typeof data.perMessageDeflate == 'boolean') { woptions.perMessageDeflate = data.perMessageDeflate; }
 
                                 // Perform manual server TLS certificate checking based on the certificate hash given by the server.
-                                woptions.rejectUnauthorized = global._MSH().validateTLS === "true";
+                                woptions.rejectUnauthorized = global._MSH && (global._MSH().validateWebCert === "true");
                                 woptions.checkServerIdentity = tunnel_checkServerIdentity;
                                 woptions.checkServerIdentity.servertlshash = data.servertlshash;
 
@@ -1770,7 +1771,7 @@ function getAmtOsDnsSuffix(mestate, func) {
 var trustedDownloads = {};
 function downloadFile(downloadoptions) {
     var options = require('http').parseUri(downloadoptions.url);
-    options.rejectUnauthorized = global._MSH().validateTLS === "true";
+    options.rejectUnauthorized = global._MSH && (global._MSH().validateWebCert === "true");
     options.checkServerIdentity = function checkServerIdentity(certs) {
         // If the tunnel certificate matches the control channel certificate, accept the connection
         try { if (require('MeshAgent').ServerInfo.ControlChannelCertificate.digest == certs[0].digest) return; } catch (ex) { }
@@ -1822,7 +1823,7 @@ function serverFetchFile() {
     agentFileHttpOptions.path = data.urlpath;
 
     // Perform manual server TLS certificate checking based on the certificate hash given by the server.
-    agentFileHttpOptions.rejectUnauthorized = global._MSH().validateTLS === "true";
+    agentFileHttpOptions.rejectUnauthorized = global._MSH && (global._MSH().validateWebCert === "true");
     agentFileHttpOptions.checkServerIdentity = function checkServerIdentity(certs) {
         // If the tunnel certificate matches the control channel certificate, accept the connection
         try { if (require('MeshAgent').ServerInfo.ControlChannelCertificate.digest == certs[0].digest) return; } catch (ex) { }
@@ -5028,7 +5029,7 @@ function processConsoleCommand(cmd, args, rights, sessionid) {
                     var httprequest = null;
                     try {
                         var options = http.parseUri(args['_'][0].split('$').join('%24').split('@').join('%40')); // Escape the $ and @ characters in the URL
-                        options.rejectUnauthorized = global._MSH().validateTLS === "true";
+                        options.rejectUnauthorized = global._MSH && (global._MSH().validateWebCert === "true");
                         httprequest = http.request(options);
                     } catch (ex) { response = 'Invalid HTTP websocket request'; }
                     if (httprequest != null) {
@@ -5650,7 +5651,7 @@ function agentUpdate_Start(updateurl, updateoptions) {
             var options = require('http').parseUri(updateurl != null ? updateurl : require('MeshAgent').ServerUrl);
             options.protocol = 'https:';
             if (updateurl == null) { options.path = ('/meshagents?id=' + require('MeshAgent').ARCHID); sendConsoleText('Downloading update from: ' + options.path, sessionid); }
-            options.rejectUnauthorized = global._MSH().validateTLS === "true";
+            options.rejectUnauthorized = global._MSH && (global._MSH().validateWebCert === "true");
             options.checkServerIdentity = function checkServerIdentity(certs) {
                 // If the tunnel certificate matches the control channel certificate, accept the connection
                 try { if (require('MeshAgent').ServerInfo.ControlChannelCertificate.digest == certs[0].digest) return; } catch (ex) { }

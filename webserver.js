@@ -5517,8 +5517,8 @@ module.exports.CreateWebServer = function (parent, db, args, certificates, doneF
                     }
                     if (domain.agentTranslations != null) { meshsettings += 'translation=' + domain.agentTranslations + '\r\n'; } // Translation strings, not for MeshCentral Assistant
                 }
-                if (domain.validateagenttls || obj.parent.config.settings.validateagenttls) {
-                    meshsettings += `validateTLS=true\r\n`
+                if (domain.agentvalidatewebcert || obj.parent.config.settings.agentvalidatewebcert) {
+                    meshsettings += `validateWebCert=true\r\n`
                 }
                 setContentDispositionHeader(res, 'application/octet-stream', meshfilename, null, argentInfo.rname);
                 if (argentInfo.mtime != null) { res.setHeader('Last-Modified', argentInfo.mtime.toUTCString()); }
@@ -5934,8 +5934,8 @@ module.exports.CreateWebServer = function (parent, db, args, certificates, doneF
             if (domain.agentcustomization.backgroundcolor != null) { meshsettings += checkAgentColorString('background=', domain.agentcustomization.backgroundcolor); }
         }
         if (domain.agentTranslations != null) { meshsettings += 'translation=' + domain.agentTranslations + '\r\n'; }
-        if (domain.validateagenttls || obj.parent.config.settings.validateagenttls) {
-            meshsettings += `validateTLS=true\r\n`
+        if (domain.agentvalidatewebcert || obj.parent.config.settings.agentvalidatewebcert) {
+            meshsettings += `validateWebCert=true\r\n`
         }
 
         // Setup the response output
@@ -6084,8 +6084,8 @@ module.exports.CreateWebServer = function (parent, db, args, certificates, doneF
             if (domain.agentcustomization.foregroundcolor != null) { meshsettings += checkAgentColorString('foreground=', domain.agentcustomization.foregroundcolor); }
             if (domain.agentcustomization.backgroundcolor != null) { meshsettings += checkAgentColorString('background=', domain.agentcustomization.backgroundcolor); }
         }
-        if (domain.validateagenttls || obj.parent.config.settings.validateagenttls) {
-            meshsettings += `validateTLS=true\r\n`
+        if (domain.agentvalidatewebcert || obj.parent.config.settings.agentvalidatewebcert) {
+            meshsettings += `validateWebCert=true\r\n`
         }
         if (domain.agentTranslations != null) { meshsettings += 'translation=' + domain.agentTranslations + '\r\n'; }
         return meshsettings;
